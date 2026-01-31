@@ -107,7 +107,9 @@ if (!auth.user) {
         <Route element={<Wallet />} path="/wallet" />
         <Route element={<Withdrawal />} path="/withdrawal" />
         <Route element={<PaymentDetails />} path="/payment-details" />
+        <Route path="/wallet" element={<Wallet />} />
         <Route element={<Wallet />} path="/wallet/:order_id" />
+
         <Route element={<StockDetails />} path="/market/:id" />
         <Route element={<Watchlist />} path="/watchlist" />
         <Route element={<Profile />} path="/profile" />

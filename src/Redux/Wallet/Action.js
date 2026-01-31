@@ -71,7 +71,7 @@ export const depositMoney =
         type: types.DEPOSIT_MONEY_SUCCESS,
         payload: response.data,
       });
-      navigate("/wallet")
+      navigate("/wallet", { replace: true });
       console.log(response.data);
     } catch (error) {
       console.error(error);
