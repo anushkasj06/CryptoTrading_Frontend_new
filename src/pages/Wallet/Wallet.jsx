@@ -27,7 +27,7 @@ import TopupForm from "./TopupForm";
 import TransferForm from "./TransferForm";
 import WithdrawForm from "./WithdrawForm";
 import { getPaymentDetails } from "@/Redux/Withdrawal/Action";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import SpinnerBackdrop from "@/components/custome/SpinnerBackdrop";
 import bgVideo from "../Home/vecteezy_illuminated-financial-data-graphs-on-digital-screen_52263081.mp4";
 
@@ -40,32 +40,23 @@ const Wallet = () => {
   const navigate = useNavigate();
   const { wallet } = useSelector((store) => store);
   const query = useQuery();
+  const paymentId = query.get("payment_id");
+  const razorpayPaymentId = query.get("razorpay_payment_id");
+  const orderId = query.get("order_id");
+  const { order_id } = useParams();
 
-  const [searchParams] = useSearchParams();
-
-  const razorpayPaymentId = searchParams.get("razorpay_payment_id");
-  const paymentStatus = searchParams.get("razorpay_payment_link_status");
-
-  const { order_id } = useParams(); // comes from /wallet/:order_id
-
-
-    useEffect(() => {
-    if (
-      order_id &&
-      razorpayPaymentId &&
-      paymentStatus === "paid"
-    ) {
+  useEffect(() => {
+    if (orderId || order_id) {
       dispatch(
         depositMoney({
           jwt: localStorage.getItem("jwt"),
-          orderId: order_id,
-          paymentId: razorpayPaymentId,
+          orderId: orderId || order_id,
+          paymentId: razorpayPaymentId || "AuedkfeuUe",
           navigate,
         })
       );
     }
-  }, [order_id, razorpayPaymentId, paymentStatus, dispatch, navigate]);
-
+  }, [paymentId, orderId, razorpayPaymentId]);
 
   useEffect(() => {
     handleFetchUserWallet();
