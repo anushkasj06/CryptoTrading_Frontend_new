@@ -20,78 +20,69 @@ import {
   UpdateIcon,
   UploadIcon,
 } from "@radix-ui/react-icons";
-import { DollarSign, WalletIcon, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from "lucide-react";
-import { useEffect } from "react";
+import {
+  DollarSign,
+  WalletIcon,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  ArrowLeftRight,
+} from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TopupForm from "./TopupForm";
 import TransferForm from "./TransferForm";
 import WithdrawForm from "./WithdrawForm";
 import { getPaymentDetails } from "@/Redux/Withdrawal/Action";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import SpinnerBackdrop from "@/components/custome/SpinnerBackdrop";
 import bgVideo from "../Home/vecteezy_illuminated-financial-data-graphs-on-digital-screen_52263081.mp4";
-
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+import { copyToClipboard } from "@/Util/copyToClipboard";
 
 const Wallet = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { wallet } = useSelector((store) => store);
-  const query = useQuery();
-  const paymentId = query.get("payment_id");
-  const razorpayPaymentId = query.get("razorpay_payment_id");
-  const orderId = query.get("order_id");
-  const { order_id } = useParams();
 
+  const { order_id } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const razorpayPaymentId = searchParams.get("razorpay_payment_id");
+  const paymentStatus = searchParams.get("razorpay_payment_link_status");
+
+  const hasDeposited = useRef(false);
+
+  // ✅ Handle Razorpay callback
   useEffect(() => {
-    if (orderId || order_id) {
+    if (
+      !hasDeposited.current &&
+      order_id &&
+      razorpayPaymentId &&
+      paymentStatus === "paid"
+    ) {
+      hasDeposited.current = true;
+
       dispatch(
         depositMoney({
           jwt: localStorage.getItem("jwt"),
-          orderId: orderId || order_id,
-          paymentId: razorpayPaymentId || "AuedkfeuUe",
+          orderId: order_id,
+          paymentId: razorpayPaymentId,
           navigate,
         })
       );
     }
-  }, [paymentId, orderId, razorpayPaymentId]);
+  }, [order_id, razorpayPaymentId, paymentStatus, dispatch, navigate]);
 
-  useEffect(() => {
-    handleFetchUserWallet();
-    hanldeFetchWalletTransactions();
-    dispatch(getPaymentDetails({ jwt: localStorage.getItem("jwt") }));
-  }, []);
-
+  // ✅ Load wallet data
   const handleFetchUserWallet = () => {
     dispatch(getUserWallet(localStorage.getItem("jwt")));
-  };
-
-  const hanldeFetchWalletTransactions = () => {
-    dispatch(getWalletTransactions({ jwt: localStorage.getItem("jwt") }));
-  };
-
-  function copyToClipboard(text) {
-    const element = document.createElement("textarea");
-    element.value = text;
-    document.body.appendChild(element);
-    element.select();
-    try {
-      const copied = navigator.clipboard.writeText(text);
-      copied.then(
-        () => {
-          console.log("Text copied to clipboard!");
-        },
-        (err) => {
-          console.error("Failed to copy text: ", err);
-        }
-      );
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-    document.body.removeChild(element);
   }
+  useEffect(() => {
+    dispatch(getUserWallet(localStorage.getItem("jwt")));
+    dispatch(getWalletTransactions({ jwt: localStorage.getItem("jwt") }));
+    dispatch(getPaymentDetails({ jwt: localStorage.getItem("jwt") }));
+  }, [dispatch]);
 
   if (wallet.loading) {
     return <SpinnerBackdrop />;
