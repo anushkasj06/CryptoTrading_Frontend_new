@@ -46,8 +46,7 @@ import WithdrawForm from "./WithdrawForm";
 import SpinnerBackdrop from "@/components/custome/SpinnerBackdrop";
 import bgVideo from "../Home/vecteezy_illuminated-financial-data-graphs-on-digital-screen_52263081.mp4";
 
-// ✅ FIXED (case-sensitive path)
-import { copyToClipboard } from "@/util/copyToClipboard";
+
 
 const Wallet = () => {
   const dispatch = useDispatch();
