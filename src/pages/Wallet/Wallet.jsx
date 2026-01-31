@@ -3,6 +3,9 @@ import {
   getUserWallet,
   getWalletTransactions,
 } from "@/Redux/Wallet/Action";
+
+import { getPaymentDetails } from "@/Redux/Withdrawal/Action";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import {
   CopyIcon,
   DownloadIcon,
@@ -20,6 +24,7 @@ import {
   UpdateIcon,
   UploadIcon,
 } from "@radix-ui/react-icons";
+
 import {
   DollarSign,
   WalletIcon,
@@ -29,16 +34,20 @@ import {
   ArrowDownRight,
   ArrowLeftRight,
 } from "lucide-react";
+
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
 import TopupForm from "./TopupForm";
 import TransferForm from "./TransferForm";
 import WithdrawForm from "./WithdrawForm";
-import { getPaymentDetails } from "@/Redux/Withdrawal/Action";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
 import SpinnerBackdrop from "@/components/custome/SpinnerBackdrop";
 import bgVideo from "../Home/vecteezy_illuminated-financial-data-graphs-on-digital-screen_52263081.mp4";
-import { copyToClipboard } from "@/Util/copyToClipboard";
+
+// ✅ FIXED (case-sensitive path)
+import { copyToClipboard } from "@/util/copyToClipboard";
 
 const Wallet = () => {
   const dispatch = useDispatch();
@@ -53,7 +62,7 @@ const Wallet = () => {
 
   const hasDeposited = useRef(false);
 
-  // ✅ Handle Razorpay callback
+  // ✅ Handle Razorpay callback safely
   useEffect(() => {
     if (
       !hasDeposited.current &&
@@ -74,14 +83,24 @@ const Wallet = () => {
     }
   }, [order_id, razorpayPaymentId, paymentStatus, dispatch, navigate]);
 
-  // ✅ Load wallet data
+  // ✅ Fetch wallet balance
   const handleFetchUserWallet = () => {
     dispatch(getUserWallet(localStorage.getItem("jwt")));
-  }
-  useEffect(() => {
-    dispatch(getUserWallet(localStorage.getItem("jwt")));
+  };
+
+  // ✅ Fetch transactions
+  const handleFetchWalletTransactions = () => {
     dispatch(getWalletTransactions({ jwt: localStorage.getItem("jwt") }));
-    dispatch(getPaymentDetails({ jwt: localStorage.getItem("jwt") }));
+  };
+
+  // ✅ Initial load
+  useEffect(() => {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt) return;
+
+    dispatch(getUserWallet(jwt));
+    dispatch(getWalletTransactions({ jwt }));
+    dispatch(getPaymentDetails({ jwt }));
   }, [dispatch]);
 
   if (wallet.loading) {
@@ -89,7 +108,7 @@ const Wallet = () => {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-slate-950 via-slate-900 to-black">
+    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-slate-950 to-black">
       <video
         autoPlay
         loop
@@ -99,18 +118,17 @@ const Wallet = () => {
         src={bgVideo}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-slate-950/50 to-black/70 pointer-events-none" />
+
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 lg:px-8">
         {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="rounded-xl bg-gradient-to-r from-rose-500/20 via-emerald-500/20 to-cyan-500/20 p-3 border border-rose-500/30 shadow-lg shadow-rose-500/10">
+        <div className="mb-8">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-rose-500/20 p-3 border border-rose-500/30">
               <WalletIcon className="h-6 w-6 text-rose-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-rose-200 via-slate-50 to-rose-200 bg-clip-text text-transparent lg:text-4xl">
-                My Wallet
-              </h1>
-              <p className="mt-1 text-sm text-slate-400">
+              <h1 className="text-3xl font-bold text-slate-50">My Wallet</h1>
+              <p className="text-sm text-slate-400">
                 Manage your funds and transactions
               </p>
             </div>
@@ -118,165 +136,141 @@ const Wallet = () => {
         </div>
 
         {/* Wallet Card */}
-        <div className="mb-8 animate-fade-in-delay">
-          <Card className="rounded-3xl border border-slate-800/80 bg-gradient-to-br from-black/90 via-slate-950/90 to-black/90 shadow-[0_24px_80px_rgba(15,23,42,0.95)]">
-            <CardHeader className="pb-6">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-5">
-                  <div className="rounded-xl bg-gradient-to-r from-rose-500/20 to-cyan-500/20 p-3 border border-rose-500/30">
-                    <WalletIcon className="h-8 w-8 text-rose-400" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl font-bold text-slate-50">My Wallet</CardTitle>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-gray-400 text-sm font-mono">
-                        #FAVHJY{wallet.userWallet?.id}
-                      </p>
-                      <CopyIcon
-                        onClick={() => copyToClipboard(wallet.userWallet?.id)}
-                        className="cursor-pointer h-4 w-4 text-slate-500 hover:text-rose-400 transition-colors"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <ReloadIcon
-                    onClick={handleFetchUserWallet}
-                    className="w-6 h-6 cursor-pointer text-slate-400 hover:text-rose-400 transition-colors"
+        <Card className="mb-8 rounded-3xl border border-slate-800 bg-black/80">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-xl text-slate-50">
+                  Wallet ID
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-400 font-mono">
+                    #{wallet.userWallet?.id}
+                  </span>
+                  <CopyIcon
+                    onClick={() =>
+                      copyToClipboard(wallet.userWallet?.id || "")
+                    }
+                    className="h-4 w-4 cursor-pointer text-slate-500"
                   />
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="rounded-lg bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 p-2 border border-emerald-500/30">
-                  <DollarSign className="h-6 w-6 text-emerald-400" />
-                </div>
-                <span className="text-3xl font-bold text-slate-50">
-                  ${wallet.userWallet?.balance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
-                </span>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className="group h-28 cursor-pointer flex flex-col items-center justify-center rounded-2xl border border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-900/60 to-black/60 p-4 transition-all hover:border-emerald-500/50 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-emerald-500/10">
-                      <div className="rounded-lg bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 p-2 border border-emerald-500/30 mb-2 group-hover:scale-110 transition-transform">
-                        <UploadIcon className="h-6 w-6 text-emerald-400" />
-                      </div>
-                      <span className="text-sm font-semibold text-slate-50">Add Money</span>
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl border-slate-800 bg-gradient-to-br from-black/95 via-slate-950/95 to-black/95 text-slate-50">
-                    <DialogHeader>
-                      <DialogTitle className="text-center text-2xl font-bold">
-                        Top Up Your Wallet
-                      </DialogTitle>
-                    </DialogHeader>
-                    <TopupForm />
-                  </DialogContent>
-                </Dialog>
+              <ReloadIcon
+                onClick={handleFetchUserWallet}
+                className="h-6 w-6 cursor-pointer text-slate-400"
+              />
+            </div>
+          </CardHeader>
 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className="group h-28 cursor-pointer flex flex-col items-center justify-center rounded-2xl border border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-900/60 to-black/60 p-4 transition-all hover:border-rose-500/50 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-rose-500/10">
-                      <div className="rounded-lg bg-gradient-to-r from-rose-500/20 to-rose-600/20 p-2 border border-rose-500/30 mb-2 group-hover:scale-110 transition-transform">
-                        <DownloadIcon className="h-6 w-6 text-rose-400" />
-                      </div>
-                      <span className="text-sm font-semibold text-slate-50">Withdraw</span>
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl border-slate-800 bg-gradient-to-br from-black/95 via-slate-950/95 to-black/95 text-slate-50">
-                    <DialogHeader>
-                      <DialogTitle className="text-center text-xl font-bold">
-                        Request Withdrawal
-                      </DialogTitle>
-                    </DialogHeader>
-                    <WithdrawForm />
-                  </DialogContent>
-                </Dialog>
+          <CardContent>
+            <div className="text-3xl font-bold text-emerald-400 mb-6">
+              $
+              {wallet.userWallet?.balance?.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) || "0.00"}
+            </div>
 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className="group h-28 cursor-pointer flex flex-col items-center justify-center rounded-2xl border border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-900/60 to-black/60 p-4 transition-all hover:border-cyan-500/50 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-cyan-500/10">
-                      <div className="rounded-lg bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 p-2 border border-cyan-500/30 mb-2 group-hover:scale-110 transition-transform">
-                        <ShuffleIcon className="h-6 w-6 text-cyan-400" />
-                      </div>
-                      <span className="text-sm font-semibold text-slate-50">Transfer</span>
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl border-slate-800 bg-gradient-to-br from-black/95 via-slate-950/95 to-black/95 text-slate-50">
-                    <DialogHeader>
-                      <DialogTitle className="text-center text-xl font-bold">
-                        Transfer To Other Wallet
-                      </DialogTitle>
-                    </DialogHeader>
-                    <TransferForm />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            {/* Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="wallet-action-btn">
+                    <UploadIcon /> Add Money
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Top Up Wallet</DialogTitle>
+                  </DialogHeader>
+                  <TopupForm />
+                </DialogContent>
+              </Dialog>
 
-        {/* Transaction History */}
-        <div className="animate-fade-in-delay">
-          <div className="flex gap-2 items-center mb-6">
-            <h1 className="text-2xl font-bold text-slate-50">Transaction History</h1>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="wallet-action-btn">
+                    <DownloadIcon /> Withdraw
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Withdraw Funds</DialogTitle>
+                  </DialogHeader>
+                  <WithdrawForm />
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="wallet-action-btn">
+                    <ShuffleIcon /> Transfer
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Transfer Wallet</DialogTitle>
+                  </DialogHeader>
+                  <TransferForm />
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Transactions */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-bold text-slate-50">
+              Transaction History
+            </h2>
             <UpdateIcon
-              onClick={hanldeFetchWalletTransactions}
-              className="p-0 h-6 w-6 cursor-pointer text-slate-400 hover:text-rose-400 transition-colors"
+              onClick={handleFetchWalletTransactions}
+              className="h-5 w-5 cursor-pointer text-slate-400"
             />
           </div>
 
-          <div className="space-y-4">
-            {wallet.transactions?.length > 0 ? (
-              wallet.transactions.map((item, index) => (
-                <Card
-                  key={index}
-                  className="rounded-2xl border border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-950/60 to-black/60 px-5 py-4 flex justify-between items-center transition-all hover:border-slate-700 hover:bg-slate-900/80"
-                >
-                  <div className="flex items-center gap-5">
-                    <Avatar className="h-12 w-12 border border-slate-700">
-                      <AvatarFallback className="bg-gradient-to-r from-rose-500/20 to-cyan-500/20">
+          {wallet.transactions?.length > 0 ? (
+            wallet.transactions.map((item, index) => (
+              <Card key={index} className="mb-3 bg-black/70 border-slate-800">
+                <CardContent className="flex justify-between items-center py-4">
+                  <div className="flex items-center gap-4">
+                    <Avatar>
+                      <AvatarFallback>
                         {item.amount > 0 ? (
-                          <TrendingUp className="h-6 w-6 text-emerald-400" />
+                          <TrendingUp className="text-emerald-400" />
                         ) : (
-                          <TrendingDown className="h-6 w-6 text-rose-400" />
+                          <TrendingDown className="text-rose-400" />
                         )}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="space-y-1">
-                      <h1 className="font-semibold text-slate-50">{item.type || item.purpose}</h1>
+                    <div>
+                      <p className="text-slate-50 font-semibold">
+                        {item.type || item.purpose}
+                      </p>
                       <p className="text-sm text-slate-500">{item.date}</p>
                     </div>
                   </div>
-                  <div>
-                    <p
-                      className={`flex items-center gap-1 text-lg font-bold ${
-                        item.amount > 0 ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {item.amount > 0 ? (
-                        <ArrowUpRight className="h-5 w-5" />
-                      ) : (
-                        <ArrowDownRight className="h-5 w-5" />
-                      )}
-                      {item.amount > 0 ? "+" : ""}${Math.abs(item.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
-                    </p>
-                  </div>
-                </Card>
-              ))
-            ) : (
-              <Card className="rounded-2xl border border-slate-800/80 bg-gradient-to-br from-black/60 via-slate-950/60 to-black/60 p-12">
-                <div className="flex flex-col items-center gap-3">
-                  <ArrowLeftRight className="h-12 w-12 text-slate-600" />
-                  <p className="text-lg font-semibold text-slate-400">No transactions yet</p>
-                  <p className="text-sm text-slate-500">Your transaction history will appear here</p>
-                </div>
+
+                  <p
+                    className={`font-bold ${
+                      item.amount > 0
+                        ? "text-emerald-400"
+                        : "text-rose-400"
+                    }`}
+                  >
+                    {item.amount > 0 ? "+" : "-"}$
+                    {Math.abs(item.amount).toFixed(2)}
+                  </p>
+                </CardContent>
               </Card>
-            )}
-          </div>
+            ))
+          ) : (
+            <p className="text-slate-500 text-center">
+              No transactions yet
+            </p>
+          )}
         </div>
       </div>
     </div>
