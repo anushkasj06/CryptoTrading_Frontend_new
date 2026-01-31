@@ -1,0 +1,372 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  font-family: "Poppins", "sans-serif";
+}
+
+/* ---------- Auth background + layout ---------- */
+
+.authContainer {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(to bottom right, #000000, #0f172a, #1e293b, #000000);
+  color: #f8fafc;
+}
+
+/* soft gradient blobs in the background */
+.authContainer::before,
+.authContainer::after {
+  content: "";
+  position: absolute;
+  width: 32rem;
+  height: 32rem;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.75;
+  z-index: 0;
+}
+
+.authContainer::before {
+  top: -12rem;
+  left: -8rem;
+  background: radial-gradient(circle, #f43f5e, #10b981);
+  animation: floatBlob1 25s ease-in-out infinite alternate;
+}
+
+.authContainer::after {
+  bottom: -14rem;
+  right: -6rem;
+  background: radial-gradient(circle, #10b981, #06b6d4);
+  animation: floatBlob2 30s ease-in-out infinite alternate;
+}
+
+@keyframes floatBlob1 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(25px, 35px, 0) scale(1.08);
+    opacity: 0.8;
+  }
+}
+
+@keyframes floatBlob2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(-30px, -25px, 0) scale(1.06);
+    opacity: 0.8;
+  }
+}
+
+.authInnerShell {
+  position: relative;
+  z-index: 10;
+}
+
+.bgBlure {
+  backdrop-filter: blur(26px);
+}
+
+/* ---------- Glass card & hero ---------- */
+
+.authShellGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 3.5rem;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .authShellGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+.authHeroTitle {
+  font-size: clamp(2.5rem, 3.8vw, 3.6rem);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.authHeroAccent {
+  background: linear-gradient(120deg, #fda4af, #6ee7b7, #67e8f9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.authHeroSubtitle {
+  color: #9ca3af;
+  max-width: 32rem;
+}
+
+.authPillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.authPill {
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f8fafc;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(71, 85, 105, 0.7);
+  backdrop-filter: blur(12px);
+}
+
+.authStatGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2.25rem;
+}
+
+@media (max-width: 640px) {
+  .authStatGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.authStatCard {
+  position: relative;
+  padding: 1rem 1rem 1.1rem;
+  border-radius: 1rem;
+  background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.6), rgba(15, 23, 42, 0.6), rgba(0, 0, 0, 0.6));
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  cursor: default;
+  backdrop-filter: blur(12px);
+}
+
+.authStatCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 55px rgba(244, 63, 94, 0.2);
+  border-color: rgba(244, 63, 94, 0.5);
+}
+
+.authStatCard::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid transparent;
+  background: linear-gradient(120deg, rgba(244, 63, 94, 0.6), rgba(16, 185, 129, 0.4), rgba(6, 182, 212, 0.5))
+    border-box;
+  mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.authStatCard:hover::after {
+  opacity: 1;
+}
+
+.authStatLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #9ca3af;
+}
+
+.authStatValue {
+  margin-top: 0.35rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.authCardShell {
+  position: relative;
+  padding: 1px;
+  border-radius: 1.5rem;
+  background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(15, 23, 42, 0.9), rgba(0, 0, 0, 0.9));
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.95);
+  transform-origin: center;
+  animation: authCardEntrance 0.6s ease-out;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  backdrop-filter: blur(12px);
+}
+
+.authCardShell:hover {
+  box-shadow: 0 28px 90px rgba(244, 63, 94, 0.25), 0 0 0 1px rgba(244, 63, 94, 0.3);
+  transform: scale(1.005);
+}
+
+.authCardShell::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 160deg, rgba(244, 63, 94, 0.35), rgba(16, 185, 129, 0.7), rgba(6, 182, 212, 0.5));
+  opacity: 0.5;
+  filter: blur(44px);
+  z-index: -1;
+  animation: authCardGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes authCardGlow {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+.authCard {
+  border-radius: 1.5rem;
+  background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(15, 23, 42, 0.9), rgba(0, 0, 0, 0.9));
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 18px 55px rgba(15, 23, 42, 0.9);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.authCardShell:hover .authCard {
+  border-color: rgba(244, 63, 94, 0.6);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.95);
+}
+
+@keyframes authCardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Form elements fade-in */
+.authCard > * {
+  animation: fadeInUp 0.5s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.authCardHeaderTitle {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.authCardHeaderSubtitle {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.authSwitchText {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.authUnderlineLink {
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+.authUnderlineLink:hover {
+  color: #fda4af;
+}
+
+/* Enhanced button with shimmer effect */
+.authPrimaryButton {
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(90deg, #f43f5e, #10b981, #06b6d4);
+  background-size: 220% auto;
+  transition: background-position 0.4s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 14px 35px rgba(244, 63, 94, 0.35);
+  border: none;
+  color: #000000;
+  font-weight: 600;
+}
+
+.authPrimaryButton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.authPrimaryButton:hover {
+  background-position: 100% 0;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 55px rgba(244, 63, 94, 0.55);
+}
+
+.authPrimaryButton:hover::before {
+  left: 100%;
+}
+
+.authPrimaryButton:active {
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0 12px 32px rgba(244, 63, 94, 0.4);
+}
+
+.authInput {
+  background-color: rgba(15, 23, 42, 0.9);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  color: #e5e7eb;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, transform 0.15s ease;
+}
+
+.authInput::placeholder {
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.authInput:focus-visible {
+  outline: none;
+  border-color: rgba(244, 63, 94, 0.9);
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2), 0 0 20px rgba(244, 63, 94, 0.15), 0 18px 40px rgba(15, 23, 42, 0.95);
+  background-color: rgba(15, 23, 42, 0.98);
+  transform: translateY(-1px);
+}
+
+.authInput:focus-visible::placeholder {
+  color: #9ca3af;
+}
+
+.authMutedLink {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.authMutedLink:hover {
+  color: #e5e7eb;
+}
+ 
+     
