@@ -61,29 +61,32 @@ function App() {
   const showNavbar = !auth.user
     ? false
     : shouldShowNavbar(location.pathname, routes, auth.user?.role);
+if (!auth.user) {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/signup" element={<Auth />} />
+      <Route path="/signin" element={<Auth />} />
+      <Route path="/forgot-password" element={<Auth />} />
 
-  if (!auth.user) {
-    return (
-      <Routes>
-        <Route element={<Landing />} path="/" />
-        <Route element={<Auth />} path="/signup" />
-        <Route element={<Auth />} path="/signin" />
-        <Route element={<Auth />} path="/admin/signup" />
-        <Route element={<Auth />} path="/forgot-password" />
-        <Route element={<LoginWithGoogle />} path="/login-with-google" />
-        <Route element={<ResetPasswordForm />} path="/reset-password/:session" />
-        <Route
-          element={<PasswordUpdateSuccess />}
-          path="/password-update-successfully"
-        />
-        <Route
-          element={<TwoFactorAuth />}
-          path="/two-factor-auth/:session"
-        />
-        <Route element={<Notfound />} path="*" />
-      </Routes>
-    );
-  }
+      {/* ✅ Razorpay callback must be accessible */}
+      <Route path="/wallet/:order_id" element={<Wallet />} />
+
+      <Route path="/login-with-google" element={<LoginWithGoogle />} />
+      <Route path="/reset-password/:session" element={<ResetPasswordForm />} />
+      <Route
+        path="/password-update-successfully"
+        element={<PasswordUpdateSuccess />}
+      />
+      <Route
+        path="/two-factor-auth/:session"
+        element={<TwoFactorAuth />}
+      />
+      <Route path="*" element={<Notfound />} />
+    </Routes>
+  );
+}
+
 
   // Redirect root based on role
   if (location.pathname === "/") {
