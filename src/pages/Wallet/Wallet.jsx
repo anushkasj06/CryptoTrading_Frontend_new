@@ -23,7 +23,7 @@ import {
 
 
 import { DollarSign, WalletIcon, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TopupForm from "./TopupForm";
 import TransferForm from "./TransferForm";
@@ -32,7 +32,6 @@ import { getPaymentDetails } from "@/Redux/Withdrawal/Action";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import SpinnerBackdrop from "@/components/custome/SpinnerBackdrop";
 import bgVideo from "../Home/vecteezy_illuminated-financial-data-graphs-on-digital-screen_52263081.mp4";
-import { useRef } from "react";
 
 
 function useQuery() {
@@ -50,6 +49,7 @@ const razorpaySignature = query.get("razorpay_signature");
 
   const orderId = query.get("order_id");
   const { order_id } = useParams();
+  const hasDeposited = useRef(false);
 
   useEffect(() => {
   if (
@@ -112,7 +112,7 @@ const razorpaySignature = query.get("razorpay_signature");
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-slate-950 via-slate-900 to-black">
+    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-black via-slate-900 to-black">
       <video
         autoPlay
         loop
